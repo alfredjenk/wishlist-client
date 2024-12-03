@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import './App.css';
 import { Auth } from './components/auth.jsx';
 import { db }from './config/firebase';
-import { getDoc, collection, getDocs, doc, addDoc } from 'firebase/firestore';
+import { getDoc, collection, getDocs, doc, addDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { applyActionCode } from 'firebase/auth';
 
 function App() {
@@ -18,6 +18,11 @@ function App() {
   const [newItemPrice, setNewItemPrice] = useState(0);
   const [newItemIsPriority, setNewItemIsPriority] = useState(false); 
   
+  //Update Price state
+
+  const [updatedPrice, setUpdatedPrice] = useState(0);
+
+
   const getItemList = async () => {
     //read data and set item list
     try {
@@ -30,8 +35,17 @@ function App() {
     }
   };
 
-  const deleteItem = async () => {
-    
+  const deleteItem = async (id) => {
+    const itemDoc = doc(db, 'item', id);
+    await deleteDoc(itemDoc);
+    getItemList();
+
+  };
+
+  const updateItemPrice = async (id) => {
+    const itemDoc = doc(db, 'item', id);
+    await updateDoc(itemDoc, { price: updatedPrice });
+    getItemList();
 
   };
 
@@ -70,7 +84,10 @@ function App() {
           <div>
             <h1> Item: {item.name} </h1>
             <p> Price: {item.price} </p>
-
+            
+            <button onClick={() => deleteItem(item.id)}>  Delete Item </button>
+            <input placeholder="new price..." onChange={(e) => setUpdatedPrice(Number(e.target.value))}/>
+            <button onClick={() => updateItemPrice(item.id)}>  Update Price </button>
           </div>
 
         ))}
