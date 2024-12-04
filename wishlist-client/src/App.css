@@ -1,169 +1,159 @@
-/* General Body Styling */
+/* Global styling for the app */
 body {
-    font-family: 'Arial', sans-serif;
-    background-color: #f4f7fc;
-    color: #333;
+    font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
+    background-color: #f4f4f4;
+  }
+  
+  /* Styling for the App component container */
+  .App {
     display: flex;
     justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-  }
-  
-  /* Main App Container */
-  .App {
-    width: 100%;
-    max-width: 800px;
     padding: 20px;
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   }
   
-  /* Header Section */
-  h1 {
-    text-align: center;
-    font-size: 2rem;
-    margin-bottom: 20px;
-    color: #4a90e2;
-  }
-  
-  h2 {
-    color: #333;
-    font-size: 1.2rem;
-    margin-bottom: 10px;
-  }
-  
-  /* Input Fields */
-  input[type="text"],
-  input[type="number"],
-  input[type="checkbox"] {
+  .main-content {
+    display: flex;
+    flex-direction: row;
     width: 100%;
-    padding: 12px;
-    margin-bottom: 10px;
+  }
+  
+  /* Sidebar for user list */
+  .sidebar {
+    width: 200px;
+    margin-right: 20px;
+    background-color: #ffffff;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .sidebar h3 {
+    text-align: center;
+    margin-bottom: 15px;
+  }
+  
+  .sidebar ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .sidebar li {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    cursor: pointer;
+  }
+  
+  .sidebar li:hover {
+    background-color: #f1f1f1;
+  }
+  
+  /* Main content section */
+  .item-content {
+    flex-grow: 1;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  /* Input and Button Styling */
+  input, button {
+    margin: 5px;
+    padding: 10px;
+    font-size: 16px;
     border-radius: 5px;
     border: 1px solid #ddd;
-    font-size: 1rem;
-  }
-  
-  input[type="checkbox"] {
-    width: auto;
-    margin-right: 10px;
   }
   
   input[type="number"] {
-    width: calc(100% - 24px); /* Make the number input fit in a row */
-    margin-right: 12px;
+    width: 150px;
   }
   
-  label {
-    font-size: 1rem;
-    color: #555;
-  }
-  
-  /* Submit Button */
   button {
-    padding: 12px 20px;
-    background-color: #4a90e2;
+    cursor: pointer;
+    background-color: #28a745;
     color: white;
     border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: background-color 0.3s ease;
   }
   
   button:hover {
-    background-color: #357abd;
+    background-color: #218838;
   }
   
-  button:disabled {
-    background-color: #ddd;
-    cursor: not-allowed;
-  }
-  
-  /* Item List Styling */
-  .item-list {
-    margin-top: 20px;
-  }
-  
+  /* Styling for each item in the list */
   .item-card {
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 8px;
+    background-color: #ffffff;
     padding: 15px;
-    margin-bottom: 15px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin: 15px 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
   
   .item-card h3 {
-    font-size: 1.4rem;
-    margin-bottom: 8px;
-    color: #333;
+    font-size: 20px;
+    margin-bottom: 10px;
   }
   
   .item-card p {
-    font-size: 1.1rem;
-    color: #777;
+    font-size: 16px;
+    margin-bottom: 10px;
   }
   
-  .item-actions {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    margin-top: 12px;
+  .item-card button {
+    background-color: #dc3545;
+    margin-right: 10px;
   }
   
-  .item-actions button {
-    background-color: #e74c3c;
-    border: none;
-    padding: 6px 12px;
+  .item-card button:hover {
+    background-color: #c82333;
+  }
+  
+  /* Priority item styling */
+  .priority-item {
+    background-color: #e0ffe0; /* Light green background */
+    border: 2px solid #28a745; /* Green border */
+  }
+  
+  .priority-item h3 {
+    color: #28a745;
+  }
+  
+  .priority-item p {
+    color: #28a745;
+  }
+  
+  /* Styling for user info section */
+  .user-info {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 18px;
+  }
+  
+  .user-info p {
+    font-weight: bold;
+  }
+  
+  .user-info button {
+    background-color: #007bff;
     color: white;
-    border-radius: 5px;
+    border: none;
     cursor: pointer;
-    font-size: 1rem;
-  }
-  
-  .item-actions button:hover {
-    background-color: #c0392b;
-  }
-  
-  .item-actions input {
-    padding: 6px;
-    font-size: 1rem;
+    padding: 10px 20px;
     border-radius: 5px;
-    border: 1px solid #ddd;
   }
   
-  .item-actions button:disabled {
-    background-color: #ccc;
+  .user-info button:hover {
+    background-color: #0056b3;
   }
   
-  /* Responsive Styling */
-  @media (max-width: 768px) {
-    .App {
-      padding: 15px;
-      width: 100%;
-      max-width: 600px;
-    }
-  
-    h1 {
-      font-size: 1.8rem;
-    }
-  
-    h2 {
-      font-size: 1rem;
-    }
-  
-    input[type="text"],
-    input[type="number"],
-    input[type="checkbox"],
-    button {
-      font-size: 0.9rem;
-    }
+  input[type="checkbox"] {
+    margin-right: 10px;
   }
   
