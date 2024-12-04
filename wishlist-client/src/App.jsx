@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
 import { Auth } from './components/auth.jsx';
-import { db }from './config/firebase';
+import { db, auth }from './config/firebase';
 import { getDoc, collection, getDocs, doc, addDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { applyActionCode } from 'firebase/auth';
 
@@ -56,7 +56,12 @@ function App() {
 
   const onSubmitItem = async () => {
     try {
-      await addDoc(itemCollectionRef, {name: newItemName, price: newItemPrice, priority: newItemIsPriority,});
+      await addDoc(itemCollectionRef, {name: newItemName, 
+        price: newItemPrice, 
+        priority: newItemIsPriority,
+        userId: auth?.currentUser?.uid,
+      });
+
       getItemList();
     } catch (error) {
       console.error(err);
