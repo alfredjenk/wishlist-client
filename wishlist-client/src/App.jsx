@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import './App.css';
 import { Auth } from './components/auth.jsx';
 import { db, auth } from './config/firebase';
-import { getDoc, collection, getDocs, doc, addDoc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { getDoc, collection, getDocs, doc, addDoc, deleteDoc, updateDoc, query, where } from 'firebase/firestore';
 
 function App() {
   const [itemList, setItemList] = useState([]); // state for items list
@@ -13,13 +13,18 @@ function App() {
   const [updatedPrice, setUpdatedPrice] = useState(0); // Update Price state
   const [userEmail, setUserEmail] = useState(null); // Logged-in user's email state
 
-  const itemCollectionRef = collection(db, "item"); // the reference to database
+  const itemCollectionRef = collection(db, "item"); // reference to the items collection
   const userCollectionRef = collection(db, "users"); // reference to the "users" collection
 
-  // Get the item list from Firestore
+  // Get the item list for the logged-in user
   const getItemList = async () => {
+    if (!auth.currentUser) {
+      return; // If no user is logged in, don't fetch items
+    }
+
     try {
-      const data = await getDocs(itemCollectionRef);
+      const q = query(itemCollectionRef, where("userId", "==", auth.currentUser.uid));
+      const data = await getDocs(q);
       const filteredData = data.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
       setItemList(filteredData);
     } catch (err) {
@@ -69,7 +74,7 @@ function App() {
         name: newItemName,
         price: newItemPrice,
         priority: newItemIsPriority,
-        userId: auth?.currentUser?.uid, // Ensure only authenticated users can add items
+        userId: auth?.currentUser?.uid, // Store the userId along with the item
       });
       getItemList(); // Refresh item list after adding a new item
     } catch (error) {
@@ -83,6 +88,7 @@ function App() {
       if (user) {
         setUserEmail(user.email);
         addUserToFirestore(user.email); // Add user to Firestore when they log in
+        getItemList(); // Fetch the items when the user logs in
       } else {
         setUserEmail(null);
       }
@@ -91,9 +97,8 @@ function App() {
     return () => unsubscribe(); // Clean up the listener on unmount
   }, []);
 
-  // Fetch items and users when the component is mounted
+  // Fetch users when the component is mounted
   useEffect(() => {
-    getItemList();
     getUserList();
   }, []);
 
