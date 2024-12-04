@@ -1,159 +1,175 @@
-/* Global styling for the app */
+/* App.css */
+
 body {
     font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
     margin: 0;
     padding: 0;
-    background-color: #f4f4f4;
-}
-
-/* Styling for the App component container */
-.App {
+  }
+  
+  .App {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    height: 100vh;
     padding: 20px;
-}
-
-.main-content {
-    display: flex;
-    flex-direction: row;
+  }
+  
+  .auth-section {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  
+  .auth-section h2 {
+    margin-bottom: 20px;
+  }
+  
+  .auth-section input {
     width: 100%;
-}
-
-/* Sidebar for user list */
-.sidebar {
-    width: 200px;
-    margin-right: 20px;
-    background-color: #ffffff;
     padding: 10px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.sidebar h3 {
-    text-align: center;
-    margin-bottom: 15px;
-}
-
-.sidebar ul {
-    list-style: none;
-    padding: 0;
-}
-
-.sidebar li {
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .auth-section button {
+    width: 100%;
     padding: 10px;
-    border-bottom: 1px solid #ddd;
+    margin: 10px 0;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
     cursor: pointer;
-}
-
-.sidebar li:hover {
-    background-color: #f1f1f1;
-}
-
-/* Main content section */
-.item-content {
-    flex-grow: 1;
-    background-color: #ffffff;
+  }
+  
+  .auth-section button:hover {
+    background-color: #45a049;
+  }
+  
+  .auth-section p {
+    color: red;
+  }
+  
+  .main-content {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 1200px;
+  }
+  
+  .sidebar {
+    width: 25%;
+    background-color: #fff;
     padding: 20px;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-h1 {
-    font-size: 24px;
-    margin-bottom: 20px;
-}
-
-/* Input and Button Styling */
-input, button {
-    margin: 5px;
-    padding: 10px;
-    font-size: 16px;
-    border-radius: 5px;
-    border: 1px solid #ddd;
-}
-
-input[type="number"] {
-    width: 150px;
-}
-
-button {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .sidebar h3 {
+    margin-bottom: 10px;
+  }
+  
+  .sidebar ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .sidebar li {
     cursor: pointer;
-    background-color: #28a745;
-    color: white;
-    border: none;
-}
-
-button:hover {
-    background-color: #218838;
-}
-
-/* Styling for each item in the list */
-.item-card {
-    background-color: #ffffff;
-    padding: 15px;
-    margin: 15px 0;
+    padding: 8px 0;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .sidebar li:hover {
+    background-color: #f1f1f1;
+  }
+  
+  .items-list {
+    width: 70%;
+    background-color: #fff;
+    padding: 20px;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.item-card h3 {
-    font-size: 20px;
-    margin-bottom: 10px;
-}
-
-.item-card p {
-    font-size: 16px;
-    margin-bottom: 10px;
-}
-
-.item-card button {
-    background-color: #dc3545;
-    margin-right: 10px;
-}
-
-.item-card button:hover {
-    background-color: #c82333;
-}
-
-/* Priority item styling */
-.priority-item {
-    background-color: #e0ffe0; /* Light green background */
-    border: 2px solid #28a745; /* Green border */
-}
-
-.priority-item h3 {
-    color: #28a745;
-}
-
-.priority-item p {
-    color: #28a745;
-}
-
-/* Styling for user info section */
-.user-info {
-    text-align: center;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .items-list h3 {
     margin-bottom: 20px;
-    font-size: 18px;
-}
-
-.user-info p {
-    font-weight: bold;
-}
-
-.user-info button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    cursor: pointer;
-    padding: 10px 20px;
+  }
+  
+  .items-list ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .items-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 10px 0;
+    padding: 10px;
+    background-color: #f9f9f9;
     border-radius: 5px;
-}
-
-.user-info button:hover {
-    background-color: #0056b3;
-}
-
-/* Styling for checkbox input */
-input[type="checkbox"] {
-    margin-right: 10px;
-}
+  }
+  
+  .items-list li.priority-item {
+    background-color: #ffeb3b;
+  }
+  
+  .items-list img {
+    border-radius: 5px;
+    margin-left: 10px;
+  }
+  
+  .items-list button {
+    background-color: #f44336;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .items-list button:hover {
+    background-color: #e53935;
+  }
+  
+  h4 {
+    margin-top: 20px;
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  input[type="text"],
+  input[type="number"],
+  input[type="url"],
+  input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  input[type="checkbox"] {
+    margin-right: 5px;
+  }
+  
+  label {
+    margin-bottom: 10px;
+  }
+  
+  input[type="file"] {
+    margin: 10px 0;
+  }
+  
+  button {
+    margin-top: 20px;
+  }
+  

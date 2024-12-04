@@ -46,7 +46,7 @@ function App() {
       await addDoc(userCollectionRef, {
         email: registerEmail,
         privacy: false, // Set privacy to false by default
-        listPassword: '', // Add a field for list password
+        listPassword: '', 
       });
       setError(null);
       setRegisterEmail('');
