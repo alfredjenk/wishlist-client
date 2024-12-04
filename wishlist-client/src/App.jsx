@@ -21,12 +21,15 @@ function App() {
   const [announcement, setAnnouncement] = useState(''); // Announcement state
   const [userPrivacy, setUserPrivacy] = useState(false); // To track user privacy
   const [totalPrice, setTotalPrice] = useState(0);
+  const [newListPassword, setNewListPassword] = useState(''); // Initialize state for new list password
+
 
 
   const itemCollectionRef = collection(db, 'item');
   const userCollectionRef = collection(db, 'users');
 
   // Register new user
+  // Register new user with a password for their list
   const registerUser = async () => {
     try {
       const q = query(userCollectionRef, where('email', '==', registerEmail));
@@ -38,7 +41,8 @@ function App() {
       await createUserWithEmailAndPassword(auth, registerEmail, registerPassword);
       await addDoc(userCollectionRef, {
         email: registerEmail,
-        privacy: false // Set privacy to false by default
+        privacy: false, // Set privacy to false by default
+        listPassword: '', // Add a field for list password
       });
       setError(null);
       setRegisterEmail('');
@@ -48,6 +52,30 @@ function App() {
       setError(err.message);
     }
   };
+
+  // Function to set a password for viewing item list
+  const setListPassword = async () => {
+    if (!userEmail || !newListPassword) return;
+    try {
+      const q = query(userCollectionRef, where('email', '==', userEmail));
+      const querySnapshot = await getDocs(q);
+      if (!querySnapshot.empty) {
+        const userDoc = querySnapshot.docs[0];
+        const userRef = doc(db, 'users', userDoc.id);
+
+        await updateDoc(userRef, {
+          listPassword: newListPassword, // Update list password
+        });
+
+        setAnnouncement('Password for your item list has been updated.');
+        setNewListPassword('');
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+
 
   // Sign in user
   const signInUser = async () => {
@@ -73,24 +101,30 @@ function App() {
       console.error(err);
     }
   };
-  
+
 
   // Get items for a selected user
+  // Check password before showing a selected user's items
   const getSelectedUserItems = async (userEmail) => {
     try {
       const q = query(userCollectionRef, where('email', '==', userEmail));
       const userSnapshot = await getDocs(q);
-
+  
       if (!userSnapshot.empty) {
         const userDoc = userSnapshot.docs[0];
-
-        // Check privacy setting
+  
+        // If privacy is enabled, prompt for the password
         if (userDoc.data().privacy) {
-          setAnnouncement('This user has set their list to private.');
-          setSelectedUserItems([]); // Clear the selected items
-          return;
+          const enteredPassword = prompt('Enter the password to view the list:');
+  
+          if (enteredPassword !== userDoc.data().listPassword) {
+            setAnnouncement('Incorrect password. You cannot view this list.');
+            setSelectedUserItems([]); // Clear selected items
+            return;
+          }
         }
-
+  
+        // If privacy is disabled, just fetch and show the list
         const itemQ = query(itemCollectionRef, where('userEmail', '==', userEmail));
         const data = await getDocs(itemQ);
         const filteredData = data.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
@@ -101,6 +135,8 @@ function App() {
       console.error(err);
     }
   };
+  
+
 
   // Get all users from Firestore
   const getUsersList = async () => {
@@ -131,7 +167,7 @@ function App() {
       console.error(error);
     }
   };
-  
+
 
 
   // Delete item
@@ -149,7 +185,7 @@ function App() {
     calculateTotalPrice();
   };
 
-   // Calculate the total price of items
+  // Calculate the total price of items
   const calculateTotalPrice = (items) => {
     if (!Array.isArray(items) || items.length === 0) {
       setTotalPrice(0); // If items array is empty or invalid, set total price to 0
@@ -262,6 +298,21 @@ function App() {
           </>
         )}
         {error && <p style={{ color: 'red' }}>{error}</p>}
+
+        {userEmail && (
+          <div>
+            <h3>Set/Update Password for Your Item List</h3>
+            <input
+              type="password"
+              placeholder="Enter new password"
+              value={newListPassword}
+              onChange={(e) => setNewListPassword(e.target.value)}
+            />
+            <button onClick={setListPassword}>Set Password</button>
+          </div>
+        )}
+
+
       </div>
 
       <div className="main-content">
@@ -296,8 +347,8 @@ function App() {
                 ))}
               </ul>
 
-              
-              <h4>Total Price: ${totalPrice}</h4>  
+
+              <h4>Total Price: ${totalPrice}</h4>
 
               <input
                 type="text"
