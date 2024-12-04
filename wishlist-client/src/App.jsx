@@ -442,8 +442,8 @@ function App() {
             </>
           )}
         </div>
-        <input type='file' onChange={(e) => setFileUpload(e.target.files[0])} />
-        <button onClick={uploadFile}> Upload Picture of Item </button>
+        
+        
         <div>
 
 
