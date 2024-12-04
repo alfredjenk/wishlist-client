@@ -214,14 +214,6 @@ function App() {
     getItemList();
   };
 
-  // Update item price
-  const updateItemPrice = async (id) => {
-    const itemDoc = doc(db, 'item', id);
-    await updateDoc(itemDoc, { price: newItemPrice });
-    getItemList();
-    calculateTotalPrice();
-  };
-
   // Calculate the total price of items
   const calculateTotalPrice = (items) => {
     if (!Array.isArray(items) || items.length === 0) {
