@@ -19,6 +19,7 @@ function App() {
   const [usersList, setUsersList] = useState([]);
   const [selectedUserEmail, setSelectedUserEmail] = useState(null); // To track the selected user's email
   const [announcement, setAnnouncement] = useState(''); // Announcement state
+  const [userPrivacy, setUserPrivacy] = useState(false); // To track user privacy
 
   const itemCollectionRef = collection(db, 'item');
   const userCollectionRef = collection(db, 'users');
@@ -33,7 +34,10 @@ function App() {
         return;
       }
       await createUserWithEmailAndPassword(auth, registerEmail, registerPassword);
-      await addDoc(userCollectionRef, { email: registerEmail });
+      await addDoc(userCollectionRef, { 
+        email: registerEmail,
+        privacy: false // Set privacy to false by default
+      });
       setError(null);
       setRegisterEmail('');
       setRegisterPassword('');
@@ -70,11 +74,25 @@ function App() {
   // Get items for a selected user
   const getSelectedUserItems = async (userEmail) => {
     try {
-      const q = query(itemCollectionRef, where('userEmail', '==', userEmail)); // Use email here
-      const data = await getDocs(q);
-      const filteredData = data.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-      setSelectedUserItems(filteredData);
-      setSelectedUserEmail(userEmail); // Update the selected user's email
+      const q = query(userCollectionRef, where('email', '==', userEmail));
+      const userSnapshot = await getDocs(q);
+      
+      if (!userSnapshot.empty) {
+        const userDoc = userSnapshot.docs[0];
+
+        // Check privacy setting
+        if (userDoc.data().privacy) {
+          setAnnouncement('This user has set their list to private.');
+          setSelectedUserItems([]); // Clear the selected items
+          return;
+        }
+
+        const itemQ = query(itemCollectionRef, where('userEmail', '==', userEmail));
+        const data = await getDocs(itemQ);
+        const filteredData = data.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+        setSelectedUserItems(filteredData);
+        setSelectedUserEmail(userEmail); // Update the selected user's email
+      }
     } catch (err) {
       console.error(err);
     }
@@ -121,6 +139,28 @@ function App() {
     getItemList();
   };
 
+  // Toggle Privacy Setting
+  const togglePrivacy = async () => {
+    if (!userEmail) return;
+    
+    const q = query(userCollectionRef, where('email', '==', userEmail));
+    const querySnapshot = await getDocs(q);
+    
+    if (!querySnapshot.empty) {
+      const userDoc = querySnapshot.docs[0];
+      const userRef = doc(db, 'users', userDoc.id);
+      
+      // Toggle the privacy field
+      await updateDoc(userRef, {
+        privacy: !userDoc.data().privacy
+      });
+      
+      // Update the local state
+      setAnnouncement(`Privacy has been ${!userDoc.data().privacy ? 'enabled' : 'disabled'}.`);
+      setUserPrivacy(!userDoc.data().privacy);
+    }
+  };
+
   // Handle user logout
   const logoutUser = async () => {
     await signOut(auth);
@@ -137,6 +177,14 @@ function App() {
         setUserEmail(user.email); // Set user email
         getItemList();
         getUsersList();
+        
+        // Check privacy for the logged-in user
+        const userQ = query(userCollectionRef, where('email', '==', user.email));
+        getDocs(userQ).then(querySnapshot => {
+          if (!querySnapshot.empty) {
+            setUserPrivacy(querySnapshot.docs[0].data().privacy);
+          }
+        });
       } else {
         setUserEmail(null);
         setSelectedUserItems([]);
@@ -153,6 +201,10 @@ function App() {
           <>
             <p>Logged in as: {userEmail}</p>
             <button onClick={logoutUser}>Log Out</button>
+            <button onClick={togglePrivacy}>
+              {userPrivacy ? 'Disable Privacy' : 'Enable Privacy'}
+            </button>
+            <p>{announcement}</p>
           </>
         ) : (
           <>
@@ -200,19 +252,7 @@ function App() {
                   No User Selected
                 </li>
                 {usersList.map((user) => (
-                  <li
-                    key={user.id}
-                    onClick={() => {
-                      if (user.email === userEmail) {
-                        setAnnouncement('You have selected your own list!');
-                        setSelectedUserEmail(null);
-                        setSelectedUserItems([]);
-                      } else {
-                        setAnnouncement('');
-                        getSelectedUserItems(user.email);
-                      }
-                    }}
-                  >
+                  <li key={user.id} onClick={() => getSelectedUserItems(user.email)}>
                     {user.email}
                   </li>
                 ))}
@@ -221,58 +261,47 @@ function App() {
           )}
         </div>
 
-        <div className="item-content">
-          {announcement && <p className="announcement">{announcement}</p>}
-
-          {selectedUserItems.length > 0 ? (
+        <div className="items-list">
+          {userEmail && !selectedUserEmail && (
             <>
-              <h2>Selected User's Items</h2>
-              {selectedUserItems.map((item) => (
-                <div className={`item-card ${item.priority ? 'priority-item' : ''}`} key={item.id}>
-                  <h3>Item: {item.name}</h3>
-                  <p>Price: {item.price}</p>
-                </div>
-              ))}
+              <h3>Your Items</h3>
+              <ul>
+                {itemList.map((item) => (
+                  <li key={item.id}>
+                    {item.name} - ${item.price}
+                    <button onClick={() => deleteItem(item.id)}>Delete</button>
+                  </li>
+                ))}
+              </ul>
+              <input
+                type="text"
+                placeholder="Item name"
+                value={newItemName}
+                onChange={(e) => setNewItemName(e.target.value)}
+              />
+              <input
+                type="number"
+                placeholder="Price"
+                value={newItemPrice}
+                onChange={(e) => setNewItemPrice(e.target.value)}
+              />
+              <input
+                type="checkbox"
+                checked={newItemIsPriority}
+                onChange={(e) => setNewItemIsPriority(e.target.checked)}
+              />
+              <button onClick={onSubmitItem}>Add Item</button>
             </>
-          ) : (
+          )}
+
+          {selectedUserEmail && (
             <>
-              <h2>Your Items</h2>
-              {itemList.map((item) => (
-                <div className={`item-card ${item.priority ? 'priority-item' : ''}`} key={item.id}>
-                  <h3>Item: {item.name}</h3>
-                  <p>Price: {item.price}</p>
-                  <button onClick={() => deleteItem(item.id)}>Delete</button>
-                  <input
-                    placeholder="Enter New Price..."
-                    type="number"
-                    value={newItemPrice}
-                    onChange={(e) => setNewItemPrice(Number(e.target.value))}
-                  />
-                  <button onClick={() => updateItemPrice(item.id)}>Update Price</button>
-                </div>
-              ))}
-              {!selectedUserEmail && (
-                <div>
-                  <h3>Add New Item</h3>
-                  <input
-                    placeholder="Enter Item Name..."
-                    value={newItemName}
-                    onChange={(e) => setNewItemName(e.target.value)}
-                  />
-                  <input
-                    placeholder="Enter Item Price..."
-                    type="number"
-                    value={newItemPrice}
-                    onChange={(e) => setNewItemPrice(Number(e.target.value))}
-                  />
-                  <input
-                    type="checkbox"
-                    onChange={() => setNewItemIsPriority(!newItemIsPriority)}
-                  />
-                  <label>Priority Item</label>
-                  <button onClick={onSubmitItem}>Add Item</button>
-                </div>
-              )}
+              <h3>{selectedUserEmail}'s Items</h3>
+              <ul>
+                {selectedUserItems.map((item) => (
+                  <li key={item.id}>{item.name} - ${item.price}</li>
+                ))}
+              </ul>
             </>
           )}
         </div>
