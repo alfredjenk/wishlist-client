@@ -3,7 +3,7 @@ import './App.css';
 import { db, auth, storage } from './config/firebase';
 import { collection, getDocs, addDoc, query, where, updateDoc, doc, deleteDoc } from 'firebase/firestore';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
-import { ref, uploadBytes } from 'firebase/storage';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 
 function App() {
@@ -156,23 +156,41 @@ function App() {
   // Add new item to Firestore
   const onSubmitItem = async () => {
     if (!userEmail || !newItemName || !newItemPrice) return;
+  
     try {
+      let fileUrl = '';
+  
+      // Upload file if a file is selected
+      if (fileUpload) {
+        const fileRef = ref(storage, `itemPhotos/${fileUpload.name}`);
+        await uploadBytes(fileRef, fileUpload);
+        fileUrl = await getDownloadURL(fileRef); // Get the download URL of the uploaded file
+      }
+  
+      // Add item with the file URL to Firestore
       await addDoc(itemCollectionRef, {
         name: newItemName,
         price: newItemPrice,
-        priority: newItemIsPriority, // Use the priority flag
-        userEmail: auth?.currentUser?.email, // Use email instead of userId
-        link: newItemLink, // Store the link in Firestore
+        priority: newItemIsPriority,
+        userEmail: auth?.currentUser?.email,
+        link: newItemLink,
+        imageUrl: fileUrl, // Save the file URL in Firestore
       });
-      getItemList(); // Get the updated list of items
+  
+      // Clear form inputs
       setNewItemName('');
       setNewItemPrice(0);
-      setNewItemIsPriority(false); // Reset priority checkbox after submission
-      setNewItemLink(''); // Reset the link input
+      setNewItemIsPriority(false);
+      setNewItemLink('');
+      setFileUpload(null); // Clear the selected file
+  
+      // Refresh the item list
+      getItemList();
     } catch (error) {
-      console.error(error);
+      console.error("Error adding item: ", error);
     }
   };
+  
 
 
 
@@ -364,6 +382,9 @@ function App() {
                     {item.link && (
                       <a href={item.link} target="_blank" rel="noopener noreferrer">View Link</a>
                     )}
+                    {item.imageUrl && (
+                      <img src={item.imageUrl} alt={item.name} width="100" height="100" />
+                      )}
                     <button onClick={() => deleteItem(item.id)}>Delete</button>
                   </li>
                 ))}
@@ -393,7 +414,18 @@ function App() {
                 Mark as Priority
               </label>
 
-              <input type="url" placeholder="Enter item link" value={newItemLink} onChange={(e) => setNewItemLink(e.target.value)} />
+              <input type="url" 
+              placeholder="Enter item link" 
+              value={newItemLink} 
+              onChange={(e) => setNewItemLink(e.target.value)} 
+              />
+
+          
+              <input
+                type="file"
+                onChange={(e) => setFileUpload(e.target.files[0])}
+              />
+
 
               <button onClick={onSubmitItem}>Add Item</button>
             </>
