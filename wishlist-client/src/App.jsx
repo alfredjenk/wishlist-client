@@ -20,6 +20,8 @@ function App() {
   const [selectedUserEmail, setSelectedUserEmail] = useState(null); // To track the selected user's email
   const [announcement, setAnnouncement] = useState(''); // Announcement state
   const [userPrivacy, setUserPrivacy] = useState(false); // To track user privacy
+  const [totalPrice, setTotalPrice] = useState(0);
+
 
   const itemCollectionRef = collection(db, 'item');
   const userCollectionRef = collection(db, 'users');
@@ -66,10 +68,12 @@ function App() {
       const data = await getDocs(q);
       const filteredData = data.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
       setItemList(filteredData);
+      calculateTotalPrice(filteredData); // Calculate total price after getting the items
     } catch (err) {
       console.error(err);
     }
   };
+  
 
   // Get items for a selected user
   const getSelectedUserItems = async (userEmail) => {
@@ -119,7 +123,7 @@ function App() {
         priority: newItemIsPriority, // Use the priority flag
         userEmail: auth?.currentUser?.email, // Use email instead of userId
       });
-      getItemList();
+      getItemList(); // Get the updated list of items
       setNewItemName('');
       setNewItemPrice(0);
       setNewItemIsPriority(false); // Reset priority checkbox after submission
@@ -127,6 +131,7 @@ function App() {
       console.error(error);
     }
   };
+  
 
 
   // Delete item
@@ -141,6 +146,18 @@ function App() {
     const itemDoc = doc(db, 'item', id);
     await updateDoc(itemDoc, { price: newItemPrice });
     getItemList();
+    calculateTotalPrice();
+  };
+
+   // Calculate the total price of items
+  const calculateTotalPrice = (items) => {
+    if (!Array.isArray(items) || items.length === 0) {
+      setTotalPrice(0); // If items array is empty or invalid, set total price to 0
+      return;
+    }
+
+    const total = items.reduce((acc, item) => acc + parseFloat(item.price || 0), 0);
+    setTotalPrice(total.toFixed(2)); // Update total price
   };
 
   // Toggle Privacy Setting
@@ -181,6 +198,7 @@ function App() {
         setUserEmail(user.email); // Set user email
         getItemList();
         getUsersList();
+        calculateTotalPrice();
 
         // Check privacy for the logged-in user
         const userQ = query(userCollectionRef, where('email', '==', user.email));
@@ -269,19 +287,17 @@ function App() {
           {userEmail && !selectedUserEmail && (
             <>
               <h3>Your Items</h3>
-
-
               <ul>
                 {itemList.map((item) => (
-                  <li
-                    key={item.id}
-                    className={item.priority ? 'priority-item' : ''} // Add class for highlighting priority items
-                  >
+                  <li key={item.id} className={item.priority ? 'priority-item' : ''}>
                     {item.name} - ${item.price}
                     <button onClick={() => deleteItem(item.id)}>Delete</button>
                   </li>
                 ))}
               </ul>
+
+              
+              <h4>Total Price: ${totalPrice}</h4>  
 
               <input
                 type="text"
@@ -302,9 +318,8 @@ function App() {
                   onChange={(e) => setNewItemIsPriority(e.target.checked)}
                 />
                 Mark as Priority
-              </label> {/* Added label for checkbox */}
+              </label>
               <button onClick={onSubmitItem}>Add Item</button>
-
             </>
           )}
 
@@ -319,6 +334,7 @@ function App() {
             </>
           )}
         </div>
+
       </div>
     </div>
   );

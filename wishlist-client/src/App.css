@@ -4,156 +4,156 @@ body {
     margin: 0;
     padding: 0;
     background-color: #f4f4f4;
-  }
-  
-  /* Styling for the App component container */
-  .App {
+}
+
+/* Styling for the App component container */
+.App {
     display: flex;
     justify-content: center;
     padding: 20px;
-  }
-  
-  .main-content {
+}
+
+.main-content {
     display: flex;
     flex-direction: row;
     width: 100%;
-  }
-  
-  /* Sidebar for user list */
-  .sidebar {
+}
+
+/* Sidebar for user list */
+.sidebar {
     width: 200px;
     margin-right: 20px;
     background-color: #ffffff;
     padding: 10px;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  .sidebar h3 {
+}
+
+.sidebar h3 {
     text-align: center;
     margin-bottom: 15px;
-  }
-  
-  .sidebar ul {
+}
+
+.sidebar ul {
     list-style: none;
     padding: 0;
-  }
-  
-  .sidebar li {
+}
+
+.sidebar li {
     padding: 10px;
     border-bottom: 1px solid #ddd;
     cursor: pointer;
-  }
-  
-  .sidebar li:hover {
+}
+
+.sidebar li:hover {
     background-color: #f1f1f1;
-  }
-  
-  /* Main content section */
-  .item-content {
+}
+
+/* Main content section */
+.item-content {
     flex-grow: 1;
     background-color: #ffffff;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  h1 {
+}
+
+h1 {
     font-size: 24px;
     margin-bottom: 20px;
-  }
-  
-  /* Input and Button Styling */
-  input, button {
+}
+
+/* Input and Button Styling */
+input, button {
     margin: 5px;
     padding: 10px;
     font-size: 16px;
     border-radius: 5px;
     border: 1px solid #ddd;
-  }
-  
-  input[type="number"] {
+}
+
+input[type="number"] {
     width: 150px;
-  }
-  
-  button {
+}
+
+button {
     cursor: pointer;
     background-color: #28a745;
     color: white;
     border: none;
-  }
-  
-  button:hover {
+}
+
+button:hover {
     background-color: #218838;
-  }
-  
-  /* Styling for each item in the list */
-  .item-card {
+}
+
+/* Styling for each item in the list */
+.item-card {
     background-color: #ffffff;
     padding: 15px;
     margin: 15px 0;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  .item-card h3 {
+}
+
+.item-card h3 {
     font-size: 20px;
     margin-bottom: 10px;
-  }
-  
-  .item-card p {
+}
+
+.item-card p {
     font-size: 16px;
     margin-bottom: 10px;
-  }
-  
-  .item-card button {
+}
+
+.item-card button {
     background-color: #dc3545;
     margin-right: 10px;
-  }
-  
-  .item-card button:hover {
+}
+
+.item-card button:hover {
     background-color: #c82333;
-  }
-  
-  /* Priority item styling */
-  .priority-item {
+}
+
+/* Priority item styling */
+.priority-item {
     background-color: #e0ffe0; /* Light green background */
     border: 2px solid #28a745; /* Green border */
-  }
-  
-  .priority-item h3 {
+}
+
+.priority-item h3 {
     color: #28a745;
-  }
-  
-  .priority-item p {
+}
+
+.priority-item p {
     color: #28a745;
-  }
-  
-  /* Styling for user info section */
-  .user-info {
+}
+
+/* Styling for user info section */
+.user-info {
     text-align: center;
     margin-bottom: 20px;
     font-size: 18px;
-  }
-  
-  .user-info p {
+}
+
+.user-info p {
     font-weight: bold;
-  }
-  
-  .user-info button {
+}
+
+.user-info button {
     background-color: #007bff;
     color: white;
     border: none;
     cursor: pointer;
     padding: 10px 20px;
     border-radius: 5px;
-  }
-  
-  .user-info button:hover {
+}
+
+.user-info button:hover {
     background-color: #0056b3;
-  }
-  
-  input[type="checkbox"] {
+}
+
+/* Styling for checkbox input */
+input[type="checkbox"] {
     margin-right: 10px;
-  }
-  
+}
