@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import { db, auth } from './config/firebase';
+import { db, auth, storage } from './config/firebase';
 import { collection, getDocs, addDoc, query, where, updateDoc, doc, deleteDoc } from 'firebase/firestore';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { ref, uploadBytes } from 'firebase/storage';
+
 
 function App() {
   const [registerEmail, setRegisterEmail] = useState('');
@@ -22,6 +24,8 @@ function App() {
   const [userPrivacy, setUserPrivacy] = useState(false); // To track user privacy
   const [totalPrice, setTotalPrice] = useState(0);
   const [newListPassword, setNewListPassword] = useState(''); // Initialize state for new list password
+  const [fileUpload, setFileUpload] = useState(null);
+  const [newItemLink, setNewItemLink] = useState(''); // To store the link
 
 
 
@@ -109,21 +113,21 @@ function App() {
     try {
       const q = query(userCollectionRef, where('email', '==', userEmail));
       const userSnapshot = await getDocs(q);
-  
+
       if (!userSnapshot.empty) {
         const userDoc = userSnapshot.docs[0];
-  
+
         // If privacy is enabled, prompt for the password
         if (userDoc.data().privacy) {
           const enteredPassword = prompt('Enter the password to view the list:');
-  
+
           if (enteredPassword !== userDoc.data().listPassword) {
             setAnnouncement('Incorrect password. You cannot view this list.');
             setSelectedUserItems([]); // Clear selected items
             return;
           }
         }
-  
+
         // If privacy is disabled, just fetch and show the list
         const itemQ = query(itemCollectionRef, where('userEmail', '==', userEmail));
         const data = await getDocs(itemQ);
@@ -135,7 +139,7 @@ function App() {
       console.error(err);
     }
   };
-  
+
 
 
   // Get all users from Firestore
@@ -151,21 +155,36 @@ function App() {
 
   // Add new item to Firestore
   const onSubmitItem = async () => {
-    if (!userEmail) return;
+    if (!userEmail || !newItemName || !newItemPrice) return;
     try {
       await addDoc(itemCollectionRef, {
         name: newItemName,
         price: newItemPrice,
         priority: newItemIsPriority, // Use the priority flag
         userEmail: auth?.currentUser?.email, // Use email instead of userId
+        link: newItemLink, // Store the link in Firestore
       });
       getItemList(); // Get the updated list of items
       setNewItemName('');
       setNewItemPrice(0);
       setNewItemIsPriority(false); // Reset priority checkbox after submission
+      setNewItemLink(''); // Reset the link input
     } catch (error) {
       console.error(error);
     }
+  };
+
+
+
+  const uploadFile = async () => {
+    if (!fileUpload) return;
+    const filesFolderRef = ref(storage, `itemPhotos/${fileUpload.name}`);
+    try {
+      await uploadBytes(filesFolderRef, fileUpload);
+    } catch (error) {
+      console.error(err);
+    }
+
   };
 
 
@@ -342,6 +361,9 @@ function App() {
                 {itemList.map((item) => (
                   <li key={item.id} className={item.priority ? 'priority-item' : ''}>
                     {item.name} - ${item.price}
+                    {item.link && (
+                      <a href={item.link} target="_blank" rel="noopener noreferrer">View Link</a>
+                    )}
                     <button onClick={() => deleteItem(item.id)}>Delete</button>
                   </li>
                 ))}
@@ -370,6 +392,9 @@ function App() {
                 />
                 Mark as Priority
               </label>
+
+              <input type="url" placeholder="Enter item link" value={newItemLink} onChange={(e) => setNewItemLink(e.target.value)} />
+
               <button onClick={onSubmitItem}>Add Item</button>
             </>
           )}
@@ -385,6 +410,14 @@ function App() {
             </>
           )}
         </div>
+        <input type='file' onChange={(e) => setFileUpload(e.target.files[0])} />
+        <button onClick={uploadFile}> Upload Picture of Item </button>
+        <div>
+
+
+
+        </div>
+
 
       </div>
     </div>
