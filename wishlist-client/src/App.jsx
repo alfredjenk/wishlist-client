@@ -190,8 +190,11 @@ function App() {
             <>
               <h3>All Users</h3>
               <ul>
+                <li onClick={() => { setSelectedUserItems([]); getItemList(); }}>
+                  No User Selected
+                </li>
                 {usersList.map((user) => (
-                  <li key={user.id} onClick={() => getSelectedUserItems(user.email)}> {/* Use email here */}
+                  <li key={user.id} onClick={() => getSelectedUserItems(user.email)}>
                     {user.email}
                   </li>
                 ))}
@@ -201,13 +204,30 @@ function App() {
         </div>
 
         <div className="item-content">
-          {selectedUserItems.length > 0 && (
+          {selectedUserItems.length > 0 ? (
             <>
               <h2>Selected User's Items</h2>
               {selectedUserItems.map((item) => (
                 <div className={`item-card ${item.priority ? 'priority-item' : ''}`} key={item.id}>
                   <h3>Item: {item.name}</h3>
                   <p>Price: {item.price}</p>
+                </div>
+              ))}
+            </>
+          ) : (
+            <>
+              <h2>Your Items</h2>
+              {itemList.map((item) => (
+                <div className={`item-card ${item.priority ? 'priority-item' : ''}`} key={item.id}>
+                  <h3>Item: {item.name}</h3>
+                  <p>Price: {item.price}</p>
+                  <button onClick={() => deleteItem(item.id)}>Delete</button>
+                  <input
+                    placeholder="New Price"
+                    type="number"
+                    onChange={(e) => setNewItemPrice(Number(e.target.value))}
+                  />
+                  <button onClick={() => updateItemPrice(item.id)}>Update</button>
                 </div>
               ))}
             </>
@@ -230,27 +250,8 @@ function App() {
                   checked={newItemIsPriority}
                   onChange={(e) => setNewItemIsPriority(e.target.checked)}
                 />
-                <label>Is high Priority</label>
-                <button onClick={onSubmitItem}>Submit Item</button>
-              </div>
-
-              <div>
-                {itemList.map((item) => (
-                  <div
-                    className={`item-card ${item.priority ? 'priority-item' : ''}`}
-                    key={item.id}
-                  >
-                    <h3>Item: {item.name}</h3>
-                    <p>Price: {item.price}</p>
-                    <button onClick={() => deleteItem(item.id)}>Delete</button>
-                    <input
-                      placeholder="New Price"
-                      type="number"
-                      onChange={(e) => setNewItemPrice(Number(e.target.value))}
-                    />
-                    <button onClick={() => updateItemPrice(item.id)}>Update</button>
-                  </div>
-                ))}
+                <label>Is high Priority?</label>
+                <button onClick={onSubmitItem}>Add Item</button>
               </div>
             </>
           )}
