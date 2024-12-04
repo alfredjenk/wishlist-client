@@ -17,6 +17,8 @@ function App() {
   const [newItemPrice, setNewItemPrice] = useState(0);
   const [newItemIsPriority, setNewItemIsPriority] = useState(false);
   const [usersList, setUsersList] = useState([]);
+  const [selectedUserEmail, setSelectedUserEmail] = useState(null); // To track the selected user's email
+  const [announcement, setAnnouncement] = useState(''); // Announcement state
 
   const itemCollectionRef = collection(db, 'item');
   const userCollectionRef = collection(db, 'users');
@@ -72,6 +74,7 @@ function App() {
       const data = await getDocs(q);
       const filteredData = data.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
       setSelectedUserItems(filteredData);
+      setSelectedUserEmail(userEmail); // Update the selected user's email
     } catch (err) {
       console.error(err);
     }
@@ -90,6 +93,7 @@ function App() {
 
   // Add new item to Firestore
   const onSubmitItem = async () => {
+    if (!userEmail) return;
     try {
       await addDoc(itemCollectionRef, {
         name: newItemName,
@@ -123,6 +127,7 @@ function App() {
     setUserEmail(null);
     setItemList([]);
     setSelectedUserItems([]);
+    setSelectedUserEmail(null);
   };
 
   // Monitor authentication state
@@ -135,6 +140,7 @@ function App() {
       } else {
         setUserEmail(null);
         setSelectedUserItems([]);
+        setSelectedUserEmail(null);
       }
     });
     return () => unsubscribe();
@@ -190,11 +196,23 @@ function App() {
             <>
               <h3>All Users</h3>
               <ul>
-                <li onClick={() => { setSelectedUserItems([]); getItemList(); }}>
+                <li onClick={() => { setSelectedUserItems([]); setSelectedUserEmail(null); setAnnouncement(''); }}>
                   No User Selected
                 </li>
                 {usersList.map((user) => (
-                  <li key={user.id} onClick={() => getSelectedUserItems(user.email)}>
+                  <li
+                    key={user.id}
+                    onClick={() => {
+                      if (user.email === userEmail) {
+                        setAnnouncement('You have selected your own list!');
+                        setSelectedUserEmail(null);
+                        setSelectedUserItems([]);
+                      } else {
+                        setAnnouncement('');
+                        getSelectedUserItems(user.email);
+                      }
+                    }}
+                  >
                     {user.email}
                   </li>
                 ))}
@@ -204,6 +222,8 @@ function App() {
         </div>
 
         <div className="item-content">
+          {announcement && <p className="announcement">{announcement}</p>}
+
           {selectedUserItems.length > 0 ? (
             <>
               <h2>Selected User's Items</h2>
@@ -223,36 +243,36 @@ function App() {
                   <p>Price: {item.price}</p>
                   <button onClick={() => deleteItem(item.id)}>Delete</button>
                   <input
-                    placeholder="New Price"
+                    placeholder="Enter New Price..."
                     type="number"
+                    value={newItemPrice}
                     onChange={(e) => setNewItemPrice(Number(e.target.value))}
                   />
-                  <button onClick={() => updateItemPrice(item.id)}>Update</button>
+                  <button onClick={() => updateItemPrice(item.id)}>Update Price</button>
                 </div>
               ))}
-            </>
-          )}
-
-          {userEmail && (
-            <>
-              <div>
-                <input
-                  placeholder="Item Name..."
-                  onChange={(e) => setNewItemName(e.target.value)}
-                />
-                <input
-                  placeholder="Price of Item..."
-                  type="number"
-                  onChange={(e) => setNewItemPrice(Number(e.target.value))}
-                />
-                <input
-                  type="checkbox"
-                  checked={newItemIsPriority}
-                  onChange={(e) => setNewItemIsPriority(e.target.checked)}
-                />
-                <label>Is high Priority?</label>
-                <button onClick={onSubmitItem}>Add Item</button>
-              </div>
+              {!selectedUserEmail && (
+                <div>
+                  <h3>Add New Item</h3>
+                  <input
+                    placeholder="Enter Item Name..."
+                    value={newItemName}
+                    onChange={(e) => setNewItemName(e.target.value)}
+                  />
+                  <input
+                    placeholder="Enter Item Price..."
+                    type="number"
+                    value={newItemPrice}
+                    onChange={(e) => setNewItemPrice(Number(e.target.value))}
+                  />
+                  <input
+                    type="checkbox"
+                    onChange={() => setNewItemIsPriority(!newItemIsPriority)}
+                  />
+                  <label>Priority Item</label>
+                  <button onClick={onSubmitItem}>Add Item</button>
+                </div>
+              )}
             </>
           )}
         </div>
