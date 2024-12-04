@@ -34,7 +34,7 @@ function App() {
         return;
       }
       await createUserWithEmailAndPassword(auth, registerEmail, registerPassword);
-      await addDoc(userCollectionRef, { 
+      await addDoc(userCollectionRef, {
         email: registerEmail,
         privacy: false // Set privacy to false by default
       });
@@ -76,7 +76,7 @@ function App() {
     try {
       const q = query(userCollectionRef, where('email', '==', userEmail));
       const userSnapshot = await getDocs(q);
-      
+
       if (!userSnapshot.empty) {
         const userDoc = userSnapshot.docs[0];
 
@@ -116,14 +116,18 @@ function App() {
       await addDoc(itemCollectionRef, {
         name: newItemName,
         price: newItemPrice,
-        priority: newItemIsPriority,
+        priority: newItemIsPriority, // Use the priority flag
         userEmail: auth?.currentUser?.email, // Use email instead of userId
       });
       getItemList();
+      setNewItemName('');
+      setNewItemPrice(0);
+      setNewItemIsPriority(false); // Reset priority checkbox after submission
     } catch (error) {
       console.error(error);
     }
   };
+
 
   // Delete item
   const deleteItem = async (id) => {
@@ -142,19 +146,19 @@ function App() {
   // Toggle Privacy Setting
   const togglePrivacy = async () => {
     if (!userEmail) return;
-    
+
     const q = query(userCollectionRef, where('email', '==', userEmail));
     const querySnapshot = await getDocs(q);
-    
+
     if (!querySnapshot.empty) {
       const userDoc = querySnapshot.docs[0];
       const userRef = doc(db, 'users', userDoc.id);
-      
+
       // Toggle the privacy field
       await updateDoc(userRef, {
         privacy: !userDoc.data().privacy
       });
-      
+
       // Update the local state
       setAnnouncement(`Privacy has been ${!userDoc.data().privacy ? 'enabled' : 'disabled'}.`);
       setUserPrivacy(!userDoc.data().privacy);
@@ -177,7 +181,7 @@ function App() {
         setUserEmail(user.email); // Set user email
         getItemList();
         getUsersList();
-        
+
         // Check privacy for the logged-in user
         const userQ = query(userCollectionRef, where('email', '==', user.email));
         getDocs(userQ).then(querySnapshot => {
@@ -265,14 +269,20 @@ function App() {
           {userEmail && !selectedUserEmail && (
             <>
               <h3>Your Items</h3>
+
+
               <ul>
                 {itemList.map((item) => (
-                  <li key={item.id}>
+                  <li
+                    key={item.id}
+                    className={item.priority ? 'priority-item' : ''} // Add class for highlighting priority items
+                  >
                     {item.name} - ${item.price}
                     <button onClick={() => deleteItem(item.id)}>Delete</button>
                   </li>
                 ))}
               </ul>
+
               <input
                 type="text"
                 placeholder="Item name"
@@ -285,12 +295,16 @@ function App() {
                 value={newItemPrice}
                 onChange={(e) => setNewItemPrice(e.target.value)}
               />
-              <input
-                type="checkbox"
-                checked={newItemIsPriority}
-                onChange={(e) => setNewItemIsPriority(e.target.checked)}
-              />
+              <label>
+                <input
+                  type="checkbox"
+                  checked={newItemIsPriority}
+                  onChange={(e) => setNewItemIsPriority(e.target.checked)}
+                />
+                Mark as Priority
+              </label> {/* Added label for checkbox */}
               <button onClick={onSubmitItem}>Add Item</button>
+
             </>
           )}
 
